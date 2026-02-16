@@ -44,8 +44,13 @@ The system uses **Random Forest Classifiers** trained on thousands of NCAA play-
 -   **Scikit-Learn** (Machine Learning)
 -   **Pandas** (Data Processing)
 -   **Streamlit** (UI)
+## Extras
+-   The large dataset I used was too big to upload to GitHub
+-   This was made for own school's football team
+-   All data came from https://collegefootballdata.com/
 
 ---
 *Created by Pradhyot Kore and Kaushal Rao
+
 
 
