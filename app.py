@@ -19,8 +19,10 @@ def load_models(team_name=None):
                 pass
     
     try:
-        return joblib.load('football_model.pkl'), False 
-    except FileNotFoundError:
+        if os.path.exists('football_model.pkl'):
+            return joblib.load('football_model.pkl'), False 
+        return None, False
+    except:
         return None, False
 
 def load_team_stats():
@@ -33,6 +35,10 @@ def load_team_stats():
 st.title("Football Play Predictor")
 st.markdown("AI-powered play calling predictions based on NCAA data.")
 
+if st.sidebar.button("Force Reload AI"):
+    st.cache_resource.clear()
+    st.rerun()
+
 team_stats = load_team_stats()
 models, _ = load_models() 
 
@@ -40,7 +46,15 @@ tab1, tab2 = st.tabs(["Predictor", "Data Manager"])
 
 with tab1:
     if models is None:
-        st.error("Model file not found! Please go to Data Manager and train the model.")
+        st.error("Model file not found!")
+        st.info(f"Current Directory: {os.getcwd()}")
+        if os.path.exists("football_model.pkl"):
+            st.warning("Found football_model.pkl but failed to load. Check for version errors.")
+        else:
+            st.info("File 'football_model.pkl' missing. Go to Data Manager and train.")
+            
+        if st.button("Try Loading Again"):
+            st.rerun()
     else:
         st.subheader("Game Situation")
         
@@ -63,7 +77,7 @@ with tab1:
                     if is_custom:
                         st.success(f"Using Custom Model specialized for {selected_team}!")
                     else:
-                        st.info(f"Using Generic Model with {selected_team} stats. (Go to Data Manager -> Train Custom Model for better results)")
+                        st.info(f"Using Generic Model with {selected_team} stats.")
                 else:
                     default_pass = 0.50
                     models, _ = load_models(None)
@@ -74,7 +88,7 @@ with tab1:
                 models, _ = load_models(None)
 
             if models is None:
-                 st.error("Model file not found! Please train the model.")
+                 st.error("Model still not loading.")
                  st.stop()
 
             pass_rate = st.slider("Pass Rate (Auto-filled)", 0.0, 1.0, default_pass, 0.01, 
@@ -147,7 +161,7 @@ with tab2:
         st.subheader("1. General Retraining")
         st.markdown("Retrain the generic model using the existing cleaned dataset.")
         if st.button("Retrain Generic Model"):
-            with st.status("Training Generic Model...", expanded=True) as status:
+            with st.status("Training...", expanded=True) as status:
                 try:
                     subprocess.run(["python", "football_predictor.py", "--test-only"], check=True)
                     st.write("Models Trained & Saved.")
@@ -156,28 +170,28 @@ with tab2:
                     st.stop()
                 
                 status.update(label="Complete!", state="complete", expanded=False)
-                st.success("System updated!")
                 st.cache_resource.clear()
+                st.rerun()
 
     with col_b:
         st.subheader("2. Train Custom Team Model")
-        st.markdown("Creating a specialized model for a specific opponent by weighting their data 10x higher.")
+        st.markdown("Creating a specialized model for a specific opponent.")
         
         if team_stats:
             team_names = sorted(list(team_stats.keys()))
             target_team = st.selectbox("Select Team to Train For", team_names)
             
             if st.button(f"Train Model for {target_team}"):
-                with st.status(f"Training Custom Model for {target_team}...", expanded=True) as status:
+                with st.status(f"Training for {target_team}...", expanded=True) as status:
                     try:
                         subprocess.run(["python", "football_predictor.py", "--test-only", "--target_team", target_team], check=True)
-                        st.write(f"Trained & Saved `football_model_{target_team}.pkl`")
+                        st.write(f"Trained & Saved model.")
                     except subprocess.CalledProcessError:
                         st.error("Training failed.")
                         st.stop()
                     
                     status.update(label="Complete!", state="complete", expanded=False)
-                    st.success(f"Custom Model for {target_team} ready! Select them in the Predictor tab.")
                     st.cache_resource.clear()
+                    st.rerun()
         else:
             st.warning("Load data first.")
