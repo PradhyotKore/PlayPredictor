@@ -144,41 +144,15 @@ with tab2:
     col_a, col_b = st.columns(2)
     
     with col_a:
-        st.subheader("1. General Update")
-        if st.button("Process Data & Retrain Generic Model"):
-            if not os.path.exists('download.csv'):
-                st.error("Raw data (download.csv) not found. This feature is only available for advanced data cleaning.")
-                st.info("You can still train models using the processed features below!")
-                st.stop()
-            with st.status("Processing...", expanded=True) as status:
-                st.write("Running Data Loader (Parsing CSV)...")
+        st.subheader("1. General Retraining")
+        st.markdown("Retrain the generic model using the existing cleaned dataset.")
+        if st.button("Retrain Generic Model"):
+            with st.status("Training Generic Model...", expanded=True) as status:
                 try:
-                    subprocess.run(["python", "ncaa_data_loader.py"], check=True)
-                    st.write("Data Loaded.")
-                except subprocess.CalledProcessError:
-                    st.error("Failed to load data.")
-                    st.stop()
-                
-                st.write("Training Generic Model...")
-                try:
-                    process = subprocess.Popen(["python", "football_predictor.py", "--test-only"], 
-                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-                    output_area = st.empty()
-                    full_output = ""
-                    while True:
-                        line = process.stdout.readline()
-                        if not line and process.poll() is not None:
-                            break
-                        if line:
-                            full_output += line
-                            output_area.code(full_output)
-                    
-                    if process.returncode != 0:
-                        st.error("Training failed.")
-                        st.stop()
+                    subprocess.run(["python", "football_predictor.py", "--test-only"], check=True)
                     st.write("Models Trained & Saved.")
-                except Exception as e:
-                    st.error(f"Error: {e}")
+                except subprocess.CalledProcessError:
+                    st.error("Training failed.")
                     st.stop()
                 
                 status.update(label="Complete!", state="complete", expanded=False)
@@ -196,24 +170,10 @@ with tab2:
             if st.button(f"Train Model for {target_team}"):
                 with st.status(f"Training Custom Model for {target_team}...", expanded=True) as status:
                     try:
-                        process = subprocess.Popen(["python", "football_predictor.py", "--test-only", "--target_team", target_team], 
-                                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-                        output_area = st.empty()
-                        full_output = ""
-                        while True:
-                            line = process.stdout.readline()
-                            if not line and process.poll() is not None:
-                                break
-                            if line:
-                                full_output += line
-                                output_area.code(full_output)
-                        
-                        if process.returncode != 0:
-                            st.error("Training failed.")
-                            st.stop()
+                        subprocess.run(["python", "football_predictor.py", "--test-only", "--target_team", target_team], check=True)
                         st.write(f"Trained & Saved `football_model_{target_team}.pkl`")
-                    except Exception as e:
-                        st.error(f"Error: {e}")
+                    except subprocess.CalledProcessError:
+                        st.error("Training failed.")
                         st.stop()
                     
                     status.update(label="Complete!", state="complete", expanded=False)

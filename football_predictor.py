@@ -182,4 +182,4 @@ if __name__ == "__main__":
         if not args.test_only:
             interactive_mode(models)
     except FileNotFoundError:
-        print(f"Error: File {args.file} not found. Ensure processed_ncaa_features.csv is present.")
+        print(f"Error: File {args.file} not found. Please run ncaa_data_loader.py first.")
