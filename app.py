@@ -131,7 +131,7 @@ with tab1:
             
             with l_col:
                 st.metric("Recommended Defense", cover_scheme)
-                st.caption("Based on Down/Distance data")
+                st.caption("Based on Down/Distance heuristics")
             
             if models['play_direction']:
                 direction = models['play_direction'].predict(input_data)[0]
@@ -146,6 +146,10 @@ with tab2:
     with col_a:
         st.subheader("1. General Update")
         if st.button("Process Data & Retrain Generic Model"):
+            if not os.path.exists('download.csv'):
+                st.error("Raw data (download.csv) not found. This feature is only available for advanced data cleaning.")
+                st.info("You can still train models using the processed features below!")
+                st.stop()
             with st.status("Processing...", expanded=True) as status:
                 st.write("Running Data Loader (Parsing CSV)...")
                 try:
@@ -189,4 +193,3 @@ with tab2:
                     st.cache_resource.clear()
         else:
             st.warning("Load data first.")
-
