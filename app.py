@@ -161,10 +161,24 @@ with tab2:
                 
                 st.write("Training Generic Model...")
                 try:
-                    subprocess.run(["python", "football_predictor.py", "--test-only"], check=True)
+                    process = subprocess.Popen(["python", "football_predictor.py", "--test-only"], 
+                                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+                    output_area = st.empty()
+                    full_output = ""
+                    while True:
+                        line = process.stdout.readline()
+                        if not line and process.poll() is not None:
+                            break
+                        if line:
+                            full_output += line
+                            output_area.code(full_output)
+                    
+                    if process.returncode != 0:
+                        st.error("Training failed.")
+                        st.stop()
                     st.write("Models Trained & Saved.")
-                except subprocess.CalledProcessError:
-                    st.error("Training failed.")
+                except Exception as e:
+                    st.error(f"Error: {e}")
                     st.stop()
                 
                 status.update(label="Complete!", state="complete", expanded=False)
@@ -182,10 +196,24 @@ with tab2:
             if st.button(f"Train Model for {target_team}"):
                 with st.status(f"Training Custom Model for {target_team}...", expanded=True) as status:
                     try:
-                        subprocess.run(["python", "football_predictor.py", "--test-only", "--target_team", target_team], check=True)
+                        process = subprocess.Popen(["python", "football_predictor.py", "--test-only", "--target_team", target_team], 
+                                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+                        output_area = st.empty()
+                        full_output = ""
+                        while True:
+                            line = process.stdout.readline()
+                            if not line and process.poll() is not None:
+                                break
+                            if line:
+                                full_output += line
+                                output_area.code(full_output)
+                        
+                        if process.returncode != 0:
+                            st.error("Training failed.")
+                            st.stop()
                         st.write(f"Trained & Saved `football_model_{target_team}.pkl`")
-                    except subprocess.CalledProcessError:
-                        st.error("Training failed.")
+                    except Exception as e:
+                        st.error(f"Error: {e}")
                         st.stop()
                     
                     status.update(label="Complete!", state="complete", expanded=False)
