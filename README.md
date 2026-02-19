@@ -1,6 +1,6 @@
 ## Website
 The website this is hosted at is: https://arlean-monocotyledonous-surreally.ngrok-free.dev
-It may go down once in a while as it is hosted on my own computer, so be sure to check a couple times.
+- **It may go down once in a while as it is hosted on my own computer, so be sure to check a couple times.**
 
 ## Usage
 1.  Click on code, then download zip
@@ -42,6 +42,7 @@ It may go down once in a while as it is hosted on my own computer, so be sure to
 
 ---
 *Created by Pradhyot Kore and Kaushal Rao
+
 
 
 
